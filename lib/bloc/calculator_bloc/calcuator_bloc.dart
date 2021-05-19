@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:calculator/utils/helper.dart';
 import 'package:equatable/equatable.dart';
 import 'package:math_expressions/math_expressions.dart';
 import 'package:meta/meta.dart';
@@ -16,13 +17,21 @@ class CalcuatorBloc extends Bloc<CalcuatorEvent, CalcuatorState> {
     CalcuatorEvent event,
   ) async* {
     if (event is AddExpression) {
-      if (event.expression == "=") {
-        print(Parser().parse(state.expression).simplify());
+      if (event.expression == "c") {
+        yield state.copyWith(expression: "");
+      } else if (event.expression == "=") {
         yield state.copyWith(
             expression: Parser()
-                .parse(state.expression)
+                .parse(Helper.getTokenFromString(str: state.expression))
                 .evaluate(EvaluationType.REAL, ContextModel())
                 .toString());
+      } else if (event.expression == "d") {
+        yield state.copyWith(
+            expression: state.expression.substring(
+                0,
+                state.expression.length > 0
+                    ? (state.expression.length - 1)
+                    : 0));
       } else {
         yield state.copyWith(expression: state.expression + event.expression);
       }
